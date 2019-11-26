@@ -96,7 +96,7 @@ export default {
       ...options,
     }
     if (isAndroid) {
-      return RNSecureStorage.getSupportedBiometryType() !== null
+      return RNSecureStorage.canCheckAuthentication()
     }
     return RNSecureStorage.canCheckAuthentication(options)
   },
