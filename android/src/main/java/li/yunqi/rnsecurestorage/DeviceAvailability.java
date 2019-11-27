@@ -1,5 +1,7 @@
 package li.yunqi.rnsecurestorage;
 
+import android.app.Activity;
+import android.app.KeyguardManager;
 import android.content.Context;
 import android.os.Build;
 
@@ -17,5 +19,10 @@ class DeviceAvailability {
             return biometricManager.canAuthenticate() == BiometricManager.BIOMETRIC_SUCCESS;
         }
         return false;
+    }
+
+    public static boolean isDeviceSecure(Context context) {
+        KeyguardManager keyguardManager = (KeyguardManager) context.getSystemService(Activity.KEYGUARD_SERVICE);
+        return keyguardManager.isDeviceSecure();
     }
 }

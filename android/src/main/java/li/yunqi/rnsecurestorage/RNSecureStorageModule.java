@@ -1,8 +1,9 @@
 package li.yunqi.rnsecurestorage;
 
 import android.os.Build;
-import androidx.annotation.NonNull;
 import android.util.Log;
+
+import androidx.annotation.NonNull;
 
 import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
@@ -85,8 +86,7 @@ public class RNSecureStorageModule extends ReactContextBaseJavaModule {
             if (resultSet.cipherStorageName.equals(currentCipherStorage.getCipherStorageName())) {
                 // The encrypted data is encrypted using the current CipherStorage, so we just decrypt and return
                 decryptionResult = currentCipherStorage.decrypt(service, key, resultSet.valueBytes);
-            }
-            else {
+            } else {
                 // The encrypted data is encrypted using an older CipherStorage, so we need to decrypt the data first, then encrypt it using the current CipherStorage, then store it again and return
                 CipherStorage oldCipherStorage = getCipherStorageByName(resultSet.cipherStorageName);
                 // decrypt using the older cipher storage
@@ -151,6 +151,20 @@ public class RNSecureStorageModule extends ReactContextBaseJavaModule {
         }
     }
 
+    @ReactMethod
+    public void canCheckAuthentication(Promise promise) {
+        try {
+            if (isFingerprintAuthAvailable()) {
+                promise.resolve(true);
+            } else {
+                promise.resolve(isDeviceSecure());
+            }
+        } catch (Exception e) {
+            Log.e(SECURE_STORAGE_MODULE, e.getMessage());
+            promise.reject(E_SUPPORTED_BIOMETRY_ERROR, e);
+        }
+    }
+
     @Override
     public String getName() {
         return SECURE_STORAGE_MODULE;
@@ -177,6 +191,10 @@ public class RNSecureStorageModule extends ReactContextBaseJavaModule {
 
     private boolean isFingerprintAuthAvailable() {
         return DeviceAvailability.isFingerprintAuthAvailable(getCurrentActivity());
+    }
+
+    private boolean isDeviceSecure() {
+        return DeviceAvailability.isDeviceSecure(getCurrentActivity());
     }
 
     private void addCipherStorageToMap(CipherStorage cipherStorage) {
